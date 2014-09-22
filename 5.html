@@ -16,6 +16,7 @@ var coordinates = [0, 0];
 
 //Dynamic, random dataset
 var dataset = [];
+var dataset2 = [];
 var numDataPoints = 50;
 var maxRange = 600;
 for (var i = 0; i < numDataPoints; i++) {
@@ -55,10 +56,14 @@ setInterval(function() {
 
 
 	var numValues = dataset.length;
-	var Range = 64;
+	var Range = 100;
+/*
+	for (var i = 0; i < numValues; i++) {
+		dataset[i][0] = dataset2[i][0];
+		dataset[i][1] = dataset2[i][1];
+	}*/
 
 	for (var i = 0; i < numValues; i++) {
-
 		if ((dataset[i][0] + Range/2) > w) {
 			dataset[i][0] = dataset[i][0] - Math.floor(Math.random() * Range)/2;
 		} else {
@@ -83,7 +88,7 @@ setInterval(function() {
 	svg.selectAll("circle")
 	   .data(dataset)
 	   .transition()
-	   .duration(100)
+	   .duration(10)
 	   .attr("cx", function(d) {
 			return d[0];
 	   })
@@ -91,7 +96,7 @@ setInterval(function() {
 			return d[1];
 	   });
 
-}, 100);
+}, 10);
 
 </script>
 
