@@ -53,6 +53,12 @@ function mousemove(d, i) {
 	console.log(coordinates);
 }
 
+svg.selectAll("circle")
+		.data(dataset)
+		.transition()
+		.duration(100)
+		.each(transition);
+
 function transition() {
 	var numValues = dataset.length;
 	var Range = 64;
@@ -100,6 +106,7 @@ function transition() {
 	}
 
 	//Update all circles
+	function repeat() {
 	svg.selectAll("circle")
 		.data(dataset)
 		.transition()
@@ -109,12 +116,10 @@ function transition() {
 		})
 		.attr("cy", function(d) {
 			return d[1];
-		});
+		})
+		.each("end", repeat);
+	}
 }
-// infinite loop
-setInterval(function() {
-	transition();
-}, 100);
 
 </script>
 
