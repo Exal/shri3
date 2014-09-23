@@ -9,7 +9,7 @@
 
 <script type="text/javascript">
 //Width and height
-var w = 1000;
+var w = 600;
 var h = 600;
 
 var coordinates = [0, 0];
@@ -17,7 +17,7 @@ var coordinates = [0, 0];
 //Dynamic, random dataset
 var dataset = [];
 var dataset2 = [];
-var numDataPoints = 333;
+var numDataPoints = 100;
 for (var i = 0; i < numDataPoints; i++) {
 	var newNumber1 = Math.floor(Math.random() * w);
 	var newNumber2 = Math.floor(Math.random() * h);
@@ -45,27 +45,21 @@ svg.selectAll("circle")
 
 svg.on("mousemove", mousemove);
 
+transition();
+
 function mousemove(d, i) {
 //	console.log(d3.mouse(this));
 	coordinates = d3.mouse(this);
 	console.log(coordinates);
 }
 
-var move_dots = function() {
+function transition() {
 	var numValues = dataset.length;
-	var Range = 100;
-	var radius = Range*2;
-	
-/*
-	for (var i = 0; i < numValues; i++) {
-		dataset[i][0] = dataset2[i][0];
-		dataset[i][1] = dataset2[i][1];
-	}*/
+	var Range = 64;
+	var radius = 128;
 
 	for (var i = 0; i < numValues; i++) {
 		if (Math.sqrt(Math.pow(Math.abs(coordinates[0]-dataset[i][0]),2) + Math.pow(Math.abs(coordinates[1]-dataset[i][1]),2)) < radius) {
-			dataset[i][0] = dataset[i][0];
-			dataset[i][1] = dataset[i][1];
 			if (coordinates[0] - dataset[i][0] >= 0) {
 				if (coordinates[1] - dataset[i][1] >= 0) {
 					dataset[i][0] = dataset[i][0] - Math.floor(Math.random() * Range)/2;
@@ -84,19 +78,19 @@ var move_dots = function() {
 				}
 			}
 		} else {
-			if ((dataset[i][0] + Range/2) > w) {
+			if ((dataset[i][0] + Range/2) >= w) {
 				dataset[i][0] = dataset[i][0] - Math.floor(Math.random() * Range)/2;
 			} else {
-				if (dataset[i][0] < Range/2) {
+				if (dataset[i][0] <= Range/2) {
 					dataset[i][0] = dataset[i][0] + Math.floor(Math.random() * Range)/2;
 				} else {
 					dataset[i][0] = dataset[i][0] + Math.floor(Math.random() * Range) - Range/2;
 				}
 			}
-			if ((dataset[i][1] + Range/2) > w) {
+			if ((dataset[i][1] + Range/2) >= w) {
 				dataset[i][1] = dataset[i][1] - Math.floor(Math.random() * Range)/2;
 			} else {
-				if (dataset[i][1] < Range/2) {
+				if (dataset[i][1] <= Range/2) {
 					dataset[i][1] = dataset[i][1] + Math.floor(Math.random() * Range)/2;
 				} else {
 					dataset[i][1] = dataset[i][1] + Math.floor(Math.random() * Range) - Range/2;
@@ -107,19 +101,19 @@ var move_dots = function() {
 
 	//Update all circles
 	svg.selectAll("circle")
-	   .data(dataset)
-	   .transition()
-	   .duration(100)
-	   .attr("cx", function(d) {
+		.data(dataset)
+		.transition()
+		.duration(100)
+		.attr("cx", function(d) {
 			return d[0];
-	   })
-	   .attr("cy", function(d) {
+		})
+		.attr("cy", function(d) {
 			return d[1];
-	   });
+		});
 }
-
+// infinite loop
 setInterval(function() {
-	move_dots();
+	transition();
 }, 100);
 
 </script>
