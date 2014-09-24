@@ -7,23 +7,39 @@
 -->		<script src="d3.js" charset="utf-8"></script>
 		<style>
 			body {
-				margin: 0px;
+				margin: 16px;
 			}
 		</style>
 	</head>
 <body>
 
 <script type="text/javascript">
-//Width and height
-var w = 512;
-var h = 512;
-var duration = 256;
-var numDataPoints = 128;
-var coordinates = [0, 0];
+/*
+1. точки неравномерно меняют цвет(у каждой свой, стартовый генерируется случайным образом, но создаются элементы чёрными)
+2. они меняют его во время движения, поэтому если кажется, что смена цвета не плавная нужно увеличить время воспроизведения анимации
+3. находятся в броуновском движении(меняют координаты случайным образом) и не выходят за границы поля
+4. не приближаются к курсору, но могут выйти за границы поля если убегают от курсора(я не знаю нужно ли испровлять это, тк в задании об этом нету никакой информации)
+5. если точки вышли за границы, они еще могут вернуться
+6. я не понял что значит "интерактивную визуализацию произвольного массива точек"(цитата), поэтому я думаю что сделал анимацию хаотично движущихся точек, которые меняют цвет во время движения и отдоляются от курсора, если он близко
+7. в анимации можно настроить:
+7.1 время воспроизведения
+7.2 ширину и высоту окна
+7.3 расстояние на которое может переместиться точка
+7.4 расстояние в пределах которого точка реагирут на курсор
+7.5 количество точек
 
-//Dynamic, random dataset
+*/
+var w = 512; //ширина
+var h = 512; //высота
+var duration = 512; //время воспроизведения анимации в мс, за это время точка изменит место и цвет(также время обновления, если большое, то точки будут поздно реагировать на курсор)
+var numDataPoints = 128; //количество точек
+var coordinates = []; //массив для координат курсора
+
+//база данных о координатах точек(кружко с маленьким радиусом) и их цветом(0 - красный, 1 - желтый)
+//пример [[19,30,1],[123,234,0],[123,432,1]] [[x,y,color],елемент,[x,y,color]]
 var dataset = [];
 
+//генерация координат точек и цвета
 for (var i = 0; i < numDataPoints; i++) {
 	var newNumber1 = Math.floor(Math.random() * w);
 	var newNumber2 = Math.floor(Math.random() * h);
@@ -31,13 +47,13 @@ for (var i = 0; i < numDataPoints; i++) {
 	dataset.push([newNumber1, newNumber2, color]);
 }
 
-//Create SVG element
+//создание svg оъекта для рисования в нем
 var svg = d3.select("body")
 			.append("svg")
 			.attr("width", w)
 			.attr("height", h);
 
-//Create circles
+//рисование черных точек(кругов с радиусом 3)
 svg.selectAll("circle")
    .data(dataset)
    .enter()
@@ -50,24 +66,25 @@ svg.selectAll("circle")
    })
    .attr("r", 3);
 
+//запуск функции для получения координат курсора
 svg.on("mousemove", mousemove);
 
 function mousemove(d, i) {
-//	console.log(d3.mouse(this));
 	coordinates = d3.mouse(this);
-	console.log(coordinates);
+//	console.log(coordinates); для слежки за координатами в консоли
 }
 
+//перемещение точек
 function move_dots() {
 
-	var numValues = dataset.length;
-	var Range = 64;
-	var radius = Range*2;
+	var numValues = dataset.length; //количество точек, зависит от длинны массива, в котором храниться информация о точках
+	var Range = 64; //расстояние на которое может пререметиться точка, точнее она может переместиться на половину данного расстояния по любой координате
+	var radius = Range*2; //расстояние между курсором и точкой, при котором она начинает убегать
 
+	//цикл для генерации новых координат точек
 	for (var i = 0; i < numValues; i++) {
+		//проверка на расстояние между точкой и курсором
 		if (Math.sqrt(Math.pow(Math.abs(coordinates[0]-dataset[i][0]),2) + Math.pow(Math.abs(coordinates[1]-dataset[i][1]),2)) < radius) {
-			dataset[i][0] = dataset[i][0];
-			dataset[i][1] = dataset[i][1];
 			if (coordinates[0] - dataset[i][0] >= 0) {
 				if (coordinates[1] - dataset[i][1] >= 0) {
 					dataset[i][0] = dataset[i][0] - Math.floor(Math.random() * Range)/2;
@@ -86,6 +103,7 @@ function move_dots() {
 				}
 			}
 		} else {
+			//перемещение точки если рядом нет курсора, но если рядом есть граница, то точка будет возвращатся к центру svg
 			if ((dataset[i][0] + Range/2) > w) {
 				dataset[i][0] = dataset[i][0] - Math.floor(Math.random() * Range)/2;
 			} else {
@@ -105,6 +123,7 @@ function move_dots() {
 				}
 			}
 		}
+		//изменение цвета
 		if (dataset[i][2] == 0) {
 			dataset[i][2] = 1;
 		} else {
@@ -112,7 +131,7 @@ function move_dots() {
 		}
 	}
 
-	//Update all circles
+	//анимация точек
 	svg.selectAll("circle")
 	   .data(dataset)
 	   .transition()
@@ -135,12 +154,10 @@ function move_dots() {
 	
 }
 
-
+//запуск анимации
 setInterval(function() {
 	move_dots();
 }, duration);
-
-
 </script>
 
 </body>
